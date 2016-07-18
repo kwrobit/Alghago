@@ -49,8 +49,9 @@ class AlghagoAlgorithm
 
     enum EDGE_POINTS {LEFT_TOP, RIGHT_TOP, LEFT_BOT, RIGHT_BOT};
 
-    const double BOARD_WIDTH;
-    const double BOARD_HEIGHT;
+    const static double R_NODE; // radius of node
+    const static double BOARD_WIDTH;
+    const static double BOARD_HEIGHT;
 
     int shootIndex;
     int targetIndex;
@@ -94,10 +95,11 @@ private:
 
 
     void _get_line_equation(const AlghagoNode& node1, const AlghagoNode& node2, double& rho, double& theta);
-    void _get_line_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection);
+    void _get_board_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection);
     void _get_rect_available(AlghagoNode& robotNode, const AlghagoNode& userNode);
-    void _get_rect_disturbance(AlghagoNode& robotNode, const AlghagoNode& userNode);
+    void _get_rect_disturbance(AlghagoNode& robotNode, const AlghagoNode& userNode, const Vector2d &intersection);
 
+    // void _local_search_in_rect(AlghagoNode& robotNode, const Algh );
     void _compute_threated();
     void _choose_node();
 };

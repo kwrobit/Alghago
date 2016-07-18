@@ -1,7 +1,7 @@
 #include "alghago_algorithm.h"
 
-const double R_NODE = 8.;
 
+const double AlghagoAlgorithm::R_NODE = 8.;
 const double AlghagoAlgorithm::BOARD_HEIGHT = 450.0;
 const double AlghagoAlgorithm::BOARD_WIDTH = 420.0;
 
@@ -69,6 +69,8 @@ void AlghagoAlgorithm::_compute_threating()
             if(_isAvailable == false) { robotNodeItr->pThreating[i] = 0.0; continue; }
 
             Vector2d _intersectionPoint;
+            _get_board_intersection(*robotNodeItr, userNodes[i], _intersectionPoint);
+            _get_rect_disturbance(*robotNodeItr,userNodes[i],_intersectionPoint);
 
         }
 
@@ -114,7 +116,7 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
     rho = -node1.coordinate(0) * sin(theta) + node1.coordinate(1) * cos(theta);
 }
 
-void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection)
+void AlghagoAlgorithm::_get_board_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection)
 {
     Vector2d _vectorSub = node1.coordinate - node2.coordinate; // dst - src
     Vector2d _tempPoint;
@@ -122,7 +124,7 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
 
     if(_vectorSub(0) >= 0)
     {
-        if(lineIntersection(robotNodeItr->coordinate, userNode[i].coordinate,
+        if(lineIntersection(node1.coordinate, node2.coordinate,
                          boardVertics[RIGHT_TOP], boardVertics[RIGHT_BOT], _tempPoint))
         {
             if(_tempPoint(1) >= 0 && _tempPoint(1) <= BOARD_HEIGHT)
@@ -134,7 +136,7 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
     }
     else
     {
-        if(lineIntersection(robotNodeItr->coordinate, userNode[i].coordinate,
+        if(lineIntersection(node1.coordinate, node2.coordinate,
                          boardVertics[LEFT_TOP], boardVertics[LEFT_BOT], _tempPoint))
         {
             if(_tempPoint(1) >= 0 && _tempPoint(1) <= BOARD_HEIGHT)
@@ -146,7 +148,7 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
     }
     if(_vectorSub(1) >= 0)
     {
-        if(lineIntersection(robotNodeItr->coordinate, userNode[i].coordinate,
+        if(lineIntersection(node1.coordinate, node2.coordinate,
                          boardVertics[LEFT_BOT], boardVertics[RIGHT_BOT], _tempPoint))
         {
             if(_tempPoint(0) >= 0 && _tempPoint(0) <= BOARD_WIDTH)
@@ -158,7 +160,7 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
     }
     else
     {
-        if(lineIntersection(robotNodeItr->coordinate, userNode[i].coordinate,
+        if(lineIntersection(node1.coordinate, node2.coordinate,
                          boardVertics[LEFT_TOP], boardVertics[RIGHT_TOP], _tempPoint))
         {
             if(_tempPoint(0) >= 0 && _tempPoint(0) <= BOARD_WIDTH)
@@ -175,37 +177,34 @@ void AlghagoAlgorithm::_get_rect_available(AlghagoNode& robotNode, const Alghago
     // get rect_available
     robotNode.rectAvailable(0,0) =
             MIN2d(robotNode.coordinate(0),
-                  userNode.coordinate(0));
+                  userNode.coordinate(0)) - R_NODE;
     robotNode.rectAvailable(0,1) =
             MIN2d(robotNode.coordinate(1),
-                  userNode.coordinate(1));
+                  userNode.coordinate(1)) - R_NODE;
     robotNode.rectAvailable(1,0) =
             MAX2d(robotNode.coordinate(0),
-                  userNode.coordinate(0));
+                  userNode.coordinate(0)) + R_NODE;
     robotNode.rectAvailable(1,1) =
             MAX2d(robotNode.coordinate(1),
-                  userNode.coordinate(1));
+                  userNode.coordinate(1)) + R_NODE;
 
 }
 
-void AlghagoAlgorithm::_get_rect_disturbance(AlghagoNode& robotNode, const AlghagoNode& userNode)
+void AlghagoAlgorithm::_get_rect_disturbance(AlghagoNode& robotNode, const AlghagoNode& userNode, const Vector2d& intersection)
 {
-
-    // TODO: make it.
-
-    // get rect_available
-    robotNode.rectAvailable(0,0) =
-            MIN2d(robotNode.coordinate(0),
-                  userNode.coordinate(0));
-    robotNode.rectAvailable(0,1) =
-            MIN2d(robotNode.coordinate(1),
-                  userNode.coordinate(1));
-    robotNode.rectAvailable(1,0) =
-            MAX2d(robotNode.coordinate(0),
-                  userNode.coordinate(0));
-    robotNode.rectAvailable(1,1) =
-            MAX2d(robotNode.coordinate(1),
-                  userNode.coordinate(1));
+    // get rect_disturbance
+    robotNode.rectDisturbance(0,0) =
+            MIN2d(userNode.coordinate(0),
+                  intersection(0)) - R_NODE;
+    robotNode.rectDisturbance(0,1) =
+            MIN2d(userNode.coordinate(1),
+                  intersection(1)) - R_NODE;
+    robotNode.rectDisturbance(1,0) =
+            MAX2d(userNode.coordinate(0),
+                  intersection(0)) + R_NODE;
+    robotNode.rectDisturbance(1,1) =
+            MAX2d(userNode.coordinate(1),
+                  intersection(1)) + R_NODE;
 
 }
 
