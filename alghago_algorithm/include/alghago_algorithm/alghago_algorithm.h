@@ -1,5 +1,6 @@
 #include <vector>
 #include <eigen3/Eigen/Dense>
+#include <ros/ros.h>
 
 #include "common_math.h"
 
@@ -70,6 +71,25 @@ public:
     {
         robotNodes = updateRobotNodes;
         userNodes = updateUserNodes;
+        _update_variables();
+    }
+    void updateNodes(vector<Vector2d> &updateRobotNodes,
+                     vector<Vector2d> &updateUserNodes)
+    {
+        robotNodes.resize(updateRobotNodes.size());
+        userNodes.resize(updateUserNodes.size());
+
+        for(vector<Vector2d>::size_type i=0; i<updateRobotNodes.size(); i++)
+        {
+            robotNodes[i].coordinate = updateRobotNodes[i];
+        }
+
+        for(vector<Vector2d>::size_type i=0; i<updateUserNodes.size(); i++)
+        {
+            userNodes[i].coordinate = updateUserNodes[i];
+        }
+
+        _update_variables();
     }
 
     void compute()
@@ -89,17 +109,17 @@ private:
     void _initialize();
     void _update_variables();
     void _compute_threating();
+    void _compute_threated();
+    void _choose_node();
 
     bool _check_in_range(const AlghagoNode &node, const Matrix2d &range);
     bool _check_on_line(const AlghagoNode &node, double rho, double theta, double r, double & rho_hat);
-
 
     void _get_line_equation(const AlghagoNode& node1, const AlghagoNode& node2, double& rho, double& theta);
     void _get_board_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection);
     void _get_rect_available(AlghagoNode& robotNode, const AlghagoNode& userNode);
     void _get_rect_disturbance(AlghagoNode& robotNode, const AlghagoNode& userNode, const Vector2d &intersection);
 
-    // void _local_search_in_rect(AlghagoNode& robotNode, const Algh );
-    void _compute_threated();
-    void _choose_node();
+    bool _local_search_in_rect(const Matrix2d &range, double rho, double theta, int robot_start, int user_start);
+    bool _local_search_in_rect(const Matrix2d &range, double rho, double theta, int robot_start, int user_start, double& occupancy);
 };

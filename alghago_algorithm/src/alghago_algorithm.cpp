@@ -26,67 +26,36 @@ void AlghagoAlgorithm::_update_variables()
 
 void AlghagoAlgorithm::_compute_threating()
 {
-    for(vector<AlghagoNode>::iterator robotNodeItr = robotNodes.begin();
-            robotNodeItr != robotNodes.end(); ++robotNodeItr)
-    {
-        for(vector<AlghagoNode>::size_type i=0; i<userNodes.size(); i++)
-        {
-            bool _isAvailable = true;
-
-            double rho, theta, rho_hat;
-
-            _get_rect_available(*robotNodeItr, userNodes[i]);
-            _get_line_equation(*robotNodeItr, userNodes[i], rho, theta);
-
-            for(vector<AlghagoNode>::iterator localNode = robotNodes.begin();
-                    localNode != robotNodes.end(); ++localNode)
-            {
-                if (_check_in_range(*localNode, robotNodeItr->rectAvailable))
-                {
-                    if(_check_on_line(*localNode, rho, theta, R_NODE, rho_hat))
-                    {
-                        _isAvailable = false;
-                        break;
-                    }
-                }
-            }
-
-            if(_isAvailable == false) { robotNodeItr->pThreating[i] = 0.0; continue; }
-
-            for(vector<AlghagoNode>::const_iterator localNode = userNodes.begin();
-                    localNode != userNodes.end(); ++localNode)
-            {
-                if (_check_in_range(*localNode, robotNodeItr->rectAvailable))
-                {
-                    if(_check_on_line(*localNode, rho, theta, R_NODE, rho_hat))
-                    {
-                        _isAvailable = false;
-                        break;
-                    }
-                }
-            }
-
-            if(_isAvailable == false) { robotNodeItr->pThreating[i] = 0.0; continue; }
-
-            Vector2d _intersectionPoint;
-            _get_board_intersection(*robotNodeItr, userNodes[i], _intersectionPoint);
-            _get_rect_disturbance(*robotNodeItr,userNodes[i],_intersectionPoint);
-
-        }
-
-    }
-    /*
     for(vector<AlghagoNode>::size_type i=0; i<robotNodes.size(); i++)
     {
         for(vector<AlghagoNode>::size_type j=0; j<userNodes.size(); j++)
         {
+            double rho, theta, occupancy;
 
-            // get rect_disturbance
+            _get_rect_available(robotNodes[i], userNodes[j]);
+            _get_line_equation(robotNodes[i], userNodes[j], rho, theta);
+            ROS_INFO("rho=%.2lf, theta=%.2lf",rho,theta*RAD2DEG);
 
+            Vector2d _intersectionPoint;
+            _get_board_intersection(robotNodes[i], userNodes[j], _intersectionPoint);
+            _get_rect_disturbance(robotNodes[i],userNodes[j],_intersectionPoint);
+
+            // if an obstacle is on line, pass to next;
+            robotNodes[i].pThreating[j] = 0.0;
+            if(_local_search_in_rect(robotNodes[i].rectAvailable, rho, theta, i,j)) continue;
+
+            ROS_INFO("pass");
+
+            _local_search_in_rect(robotNodes[i].rectDisturbance, rho, theta, i, j, occupancy);
+            robotNodes[i].pThreating[j] = 1.0 - occupancy;
         }
     }
-    */
 }
+
+void AlghagoAlgorithm::_compute_threated()
+{
+}
+
 
 bool AlghagoAlgorithm::_check_in_range(const AlghagoNode &node, const Matrix2d &range)
 {
@@ -101,12 +70,14 @@ bool AlghagoAlgorithm::_check_on_line(const AlghagoNode &node, double rho, doubl
 {
     double D = -node.coordinate(0) * sin(theta) + node.coordinate(1) * cos(theta) - rho; // pan byel sik
 
+    ROS_INFO("D=%.2lf",D);
     if ( D > 2 * r)
         return false;
     if (D < - 2 * r)
         return false;
 
     rho_hat = D + rho;
+    ROS_INFO("rho_hat=%.2lf, rho=%.2lf",rho_hat,rho);
     return true;
 }
 
@@ -114,11 +85,13 @@ void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const Alghag
 {
     theta = atan2(node1.coordinate(1) - node2.coordinate(1), node1.coordinate(0) - node2.coordinate(0));
     rho = -node1.coordinate(0) * sin(theta) + node1.coordinate(1) * cos(theta);
+    ROS_INFO("-- %.2lf %.2lf %.2lf %.2lf",node1.coordinate(0), node1.coordinate(1), node2.coordinate(0), node2.coordinate(1));
+
 }
 
 void AlghagoAlgorithm::_get_board_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection)
 {
-    Vector2d _vectorSub = node1.coordinate - node2.coordinate; // dst - src
+    Vector2d _vectorSub = node2.coordinate - node1.coordinate; // dst - src
     Vector2d _tempPoint;
 
 
@@ -208,14 +181,118 @@ void AlghagoAlgorithm::_get_rect_disturbance(AlghagoNode& robotNode, const Algha
 
 }
 
-void AlghagoAlgorithm::_compute_threated()
+/**
+ * @brief AlghagoAlgorithm::_local_search_in_rect
+ * @param range
+ * @param rho
+ * @param theta
+ * @return return true if at least one node is on line
+ */
+bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, double theta, int robot_start, int user_start)
 {
-
+    double _rho_hat;
+    for(vector<AlghagoNode>::size_type i=0; i<robotNodes.size(); i++)
+    {
+        if (i == robot_start) continue;
+        if (_check_in_range(robotNodes[i], range))
+        {
+            if(_check_on_line(robotNodes[i], rho, theta, R_NODE, _rho_hat))
+            {
+                return true;
+            }
+        }
+    }
+    for(vector<AlghagoNode>::size_type i=0; i<userNodes.size(); i++)
+    {
+        if (i == user_start) continue;
+        if (_check_in_range(userNodes[i], range))
+        {
+            if(_check_on_line(userNodes[i], rho, theta, R_NODE, _rho_hat))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
+
+/**
+ * @brief AlghagoAlgorithm::_local_search_in_rect
+ * @param range
+ * @param rho
+ * @param theta
+ * @param occupancy 0.0 ~ 1.0
+ * @return return true if at least one node is on line
+ */
+bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, double theta, int robot_start, int user_start, double& occupancy)
+{
+    double _rho_hat;
+    bool _isOnLine = false;
+    double _occupancy;
+    occupancy = 0.0;
+
+    for(vector<AlghagoNode>::size_type i=0; i<robotNodes.size(); i++)
+    {
+        if (i == robot_start) continue;
+        if (_check_in_range(robotNodes[i], range))
+        {
+            if(_check_on_line(robotNodes[i], rho, theta, R_NODE, _rho_hat))
+            {
+                return true;
+            }
+        }
+    }
+    for(vector<AlghagoNode>::size_type i=0; i<userNodes.size(); i++)
+    {
+        if (i == user_start) continue;
+        if (_check_in_range(userNodes[i], range))
+        {
+            if(_check_on_line(userNodes[i], rho, theta, R_NODE, _rho_hat))
+            {
+                _occupancy = fabs(rho-_rho_hat) / (2 * R_NODE);
+                if(_occupancy > occupancy) occupancy = _occupancy;
+
+                _isOnLine = true;
+            }
+        }
+    }
+
+    /*
+
+    for(vector<AlghagoNode>::iterator localNode = robotNodes.begin();
+            localNode != robotNodes.end(); ++localNode)
+    {
+        if (_check_in_range(*localNode, range))
+        {
+            if(_check_on_line(*localNode, rho, theta, R_NODE, _rho_hat))
+            {
+            }
+        }
+    }
+
+    for(vector<AlghagoNode>::const_iterator localNode = userNodes.begin();
+            localNode != userNodes.end(); ++localNode)
+    {
+        if (_check_in_range(*localNode, range))
+        {
+            if(_check_on_line(*localNode, rho, theta, R_NODE, _rho_hat))
+            {
+                _occupancy = fabs(rho-_rho_hat) / (2 * R_NODE);
+                if(_occupancy > occupancy) occupancy = _occupancy;
+
+                _isOnLine = true;
+            }
+        }
+    }
+    */
+    return _isOnLine;
+}
+
 void AlghagoAlgorithm::_choose_node()
 {
     for(int i=0; i<(int)robotNodes.size(); i++)
     {
-
+        for(int j=0; j<(int)robotNodes[i].pThreating.size(); j++)
+            ROS_INFO("%d node to %d: pThreating = %.2lf",i,j,robotNodes[i].pThreating[j]);
     }
 }

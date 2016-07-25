@@ -30,3 +30,5 @@ target_link_libraries(alghago_algorithm_node
   ${catkin_LIBRARIES}
 )
 
+
+set(CMAKE_BUILD_TYPE Debug)
