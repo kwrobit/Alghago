@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>alghago_gazebo</name>
+  <version>0.0.0</version>
+  <description>The alghago_description package</description>
+  <maintainer email="psh117@gmail.com">Suhan Park</maintainer>
+
+  <license>LGPLv2.1</license>
+  <author email="psh117@gmail.com">Suhan Park</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>roslaunch</build_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>roslaunch</run_depend>
+
+
+  <export>
+
+  </export>
+</package>

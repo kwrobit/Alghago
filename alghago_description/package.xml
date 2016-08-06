@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>alghago_description</name>
+  <version>0.0.0</version>
+  <description>The alghago_description package</description>
+  <maintainer email="psh117@gmail.com">Suhan Park</maintainer>
+
+  <license>LGPLv2.1</license>
+  <author email="psh117@gmail.com">Suhan Park</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>

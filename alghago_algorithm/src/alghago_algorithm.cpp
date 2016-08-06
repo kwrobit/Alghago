@@ -229,7 +229,7 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
     double _rho_hat;
     bool _isOnLine = false;
     double _occupancy;
-    occupancy = 0.0;
+    occupancy = 1.0;
 
     for(vector<AlghagoNode>::size_type i=0; i<robotNodes.size(); i++)
     {

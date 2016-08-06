@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     robotSampleNodes.push_back(Vector2d(100, 100));
     robotSampleNodes.push_back(Vector2d(100, 200));
 
-    userSampleNodes.push_back(Vector2d(100, 150));
+    userSampleNodes.push_back(Vector2d(110, 150));
 
     AA.updateNodes(robotSampleNodes,userSampleNodes);
     AA.compute();
