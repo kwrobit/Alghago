@@ -18,14 +18,18 @@ catkin_package(
 )
 
 
+file(GLOB_RECURSE HeaderFiles "include/*.h")
+add_custom_target(badukpan_extractor_headers SOURCES ${HeaderFiles})
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  include/
 )
 
 ## Declare a C++ library
-# add_library(badukpan_extractor
-#   src/${PROJECT_NAME}/badukpan_extractor.cpp
-# )
+add_library(${PROJECT_NAME}
+  src/badukpan_extractor.cpp
+)
 
 add_executable(badukpan src/badukpan.cpp)
 
@@ -34,8 +38,12 @@ add_executable(badukpan src/badukpan.cpp)
 # add_dependencies(badukpan_extractor_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(badukpan
   ${catkin_LIBRARIES}
+  ${PROJECT_NAME}
 )
 
 #############

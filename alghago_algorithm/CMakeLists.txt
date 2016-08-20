@@ -9,6 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 )
 
+file(GLOB_RECURSE HeaderFiles "include/*.h")
+add_custom_target(alghago_algorithm_headers SOURCES ${HeaderFiles})
+
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
