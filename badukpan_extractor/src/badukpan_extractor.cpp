@@ -7,7 +7,7 @@ using namespace cv;
 BadukpanExtractor::BadukpanExtractor(ros::NodeHandle& nh) : it_(nh), count_(0), isFirst_(true), filterCount_(0)
 {
     //image_transport::TransportHints hints("compressed", ros::TransportHints(), nh);
-    camera_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1,  &BadukpanExtractor::imageCallback, this);
+    camera_sub_ = it_.subscribe("/usb_cam/image_raw", 1,  &BadukpanExtractor::imageCallback, this);
     processed_pub_ = it_.advertise("/badukpan/image_raw", 1);
 }
 
