@@ -3,6 +3,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/PoseArray.h>
+#include "alghago_msgs/BadukalArray.h"
+
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -20,10 +22,13 @@ class BadukpanExtractor
 
     image_transport::Publisher processed_pub_;
 
+    ros::Publisher badukal_pub_;
+
     Mat warpPerspectiveMatrix_;
 
     bool isFirst_;
     int count_;
+    int filterCount_;
 
     vector<Eigen::Vector2d> badukalPoints_;
 
