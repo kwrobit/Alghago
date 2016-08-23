@@ -124,6 +124,10 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
     vector<Vec3f> circles;
     HoughCircles( grayImg, circles,CV_HOUGH_GRADIENT, 2, 12, 40, 25, 9, 14);
 
+
+    // clear badukal vector
+    badukalPoints_[filterCount_].clear();
+
     for( size_t i = 0; i < circles.size(); i++ )
     {
 
@@ -147,6 +151,13 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
 
        if(centerPixSum > WHITE_THRESH)
        {
+           Badukal _al;
+           _al.color = Badukal::WHITE;
+           _al.x = center.x;
+           _al.y = center.y;
+
+           badukalPoints_[filterCount_].push_back(_al);
+
            // circle center
            circle( badukpanImg, center, 3, Scalar(0,255,0), -1, 8, 0 );
            // circle outline
@@ -156,6 +167,12 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
        }
        else if(centerPixSum < BLACK_THRESH)
        {
+           Badukal _al;
+           _al.color = Badukal::BLACK;
+           _al.x = center.x;
+           _al.y = center.y;
+
+           badukalPoints_[filterCount_].push_back(_al);
            // circle center
            circle( badukpanImg, center, 3, Scalar(0,255,0), -1, 8, 0 );
            // circle outline
@@ -163,6 +180,19 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
            //ROS_INFO("BLK, r=%d",radius);
        }
      }
+
+    filterCount_ ++;
+    if(filterCount_ == FILTER_CNT)
+    {
+        alghago_msgs::BadukalArray msg;
+        vector<Badukal> filtered_al;
+        vector<int> scores;
+        filtered_al = badukalPoints_[0];
+        scores.resize(filtered_al.size(),1);
+        for(int i=1; i<FILTER_CNT; i++)
+        {
+        }
+    }
 }
 
 void BadukpanExtractor::imageCallback(const sensor_msgs::ImageConstPtr& msg)

@@ -15,6 +15,16 @@
 using namespace std;
 using namespace cv;
 
+#define FILTER_CNT 10
+
+struct Badukal
+{
+    enum BADUKAL_COLOR {BLACK, WHITE};
+    int color;
+    double x;
+    double y;
+};
+
 class BadukpanExtractor
 {
     image_transport::ImageTransport it_;
@@ -28,9 +38,10 @@ class BadukpanExtractor
 
     bool isFirst_;
     int count_;
+
     int filterCount_;
 
-    vector<Eigen::Vector2d> badukalPoints_;
+    vector<Badukal> badukalPoints_[FILTER_CNT];
 
 
 public:
