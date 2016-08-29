@@ -118,11 +118,11 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
 
     cvtColor( badukpanImg, grayImg, COLOR_BGR2GRAY );
 
-    medianBlur(grayImg, grayImg, 9);
     //GaussianBlur( grayImg, grayImg, Size(9, 9), 2, 2 );
+    //medianBlur(grayImg, grayImg, 3);
 
     vector<Vec3f> circles;
-    HoughCircles( grayImg, circles,CV_HOUGH_GRADIENT, 2, 12, 40, 25, 9, 14);
+    HoughCircles( grayImg, circles,CV_HOUGH_GRADIENT, 2, 12, 50, 30, 10, 13);
 
     for( size_t i = 0; i < circles.size(); i++ )
     {
