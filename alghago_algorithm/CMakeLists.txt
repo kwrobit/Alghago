@@ -4,6 +4,7 @@ project(alghago_algorithm)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  alghago_msgs
 )
 
 catkin_package(

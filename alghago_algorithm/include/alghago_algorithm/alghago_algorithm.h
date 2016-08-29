@@ -60,7 +60,6 @@ class AlghagoAlgorithm
     vector<AlghagoNode> robotNodes;
     vector<AlghagoNode> userNodes;
 
-
     Vector2d boardVertics[4];
 
 public:
@@ -115,6 +114,7 @@ private:
     bool _check_in_range(const AlghagoNode &node, const Matrix2d &range);
     bool _check_on_line(const AlghagoNode &node, double rho, double theta, double r, double & rho_hat);
 
+    double _get_distance(const AlghagoNode& node1, const AlghagoNode& node2);
     void _get_line_equation(const AlghagoNode& node1, const AlghagoNode& node2, double& rho, double& theta);
     void _get_board_intersection(const AlghagoNode& node1, const AlghagoNode& node2, Vector2d& intersection);
     void _get_rect_available(AlghagoNode& robotNode, const AlghagoNode& userNode);

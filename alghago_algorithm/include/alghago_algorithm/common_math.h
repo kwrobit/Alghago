@@ -18,7 +18,7 @@ const double RAD2DEG = 57.295779515;
 
 #define MAX2d(X,Y) ((X>Y)?X:Y)
 #define MIN2d(X,Y) ((X<Y)?X:Y)
-
+#define SQR(X) ((X)*(X))
 /**
  * @brief max
  * @param count Max값을 구할 가변 파라미터의 길이

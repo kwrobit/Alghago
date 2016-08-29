@@ -2,6 +2,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/PoseArray.h>
 #include "alghago_msgs/BadukalArray.h"
 
@@ -15,7 +16,7 @@
 using namespace std;
 using namespace cv;
 
-#define FILTER_CNT 10
+#define FILTER_CNT 5
 
 struct Badukal
 {
@@ -33,11 +34,13 @@ class BadukpanExtractor
     image_transport::Publisher processed_pub_;
 
     ros::Publisher badukal_pub_;
+    ros::Subscriber badukpan_fit_sub_;
 
     Mat warpPerspectiveMatrix_;
 
     bool isFirst_;
     int count_;
+    int badukal_count_;
 
     int filterCount_;
 
@@ -52,6 +55,7 @@ public:
 
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
+    void badukpanFitCallback(const std_msgs::BoolConstPtr msg);
     void fitBadukpan(Mat &srcImg);
     void scanBadukal(Mat &srcImg, Mat &badukpanImg);
 

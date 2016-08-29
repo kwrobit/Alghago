@@ -1,7 +1,7 @@
 #include "alghago_algorithm.h"
 
 
-const double AlghagoAlgorithm::R_NODE = 8.;
+const double AlghagoAlgorithm::R_NODE = 15.;
 const double AlghagoAlgorithm::BOARD_HEIGHT = 450.0;
 const double AlghagoAlgorithm::BOARD_WIDTH = 420.0;
 
@@ -30,7 +30,8 @@ void AlghagoAlgorithm::_compute_threating()
     {
         for(vector<AlghagoNode>::size_type j=0; j<userNodes.size(); j++)
         {
-            double rho, theta, occupancy;
+            double rho, theta, occupancy, dist;
+
 
             _get_rect_available(robotNodes[i], userNodes[j]);
             _get_line_equation(robotNodes[i], userNodes[j], rho, theta);
@@ -47,7 +48,8 @@ void AlghagoAlgorithm::_compute_threating()
             ROS_INFO("pass");
 
             _local_search_in_rect(robotNodes[i].rectDisturbance, rho, theta, i, j, occupancy);
-            robotNodes[i].pThreating[j] = 1.0 - occupancy;
+            dist = _get_distance(robotNodes[i], userNodes[j]);
+            robotNodes[i].pThreating[j] = (1.0 - occupancy) / dist;
         }
     }
 }
@@ -79,6 +81,11 @@ bool AlghagoAlgorithm::_check_on_line(const AlghagoNode &node, double rho, doubl
     rho_hat = D + rho;
     ROS_INFO("rho_hat=%.2lf, rho=%.2lf",rho_hat,rho);
     return true;
+}
+double AlghagoAlgorithm::_get_distance(const AlghagoNode& node1, const AlghagoNode& node2)
+{
+    return sqrt(SQR(node1.coordinate(0) - node2.coordinate(0)) +
+                SQR(node1.coordinate(1) - node2.coordinate(1)));
 }
 
 void AlghagoAlgorithm::_get_line_equation(const AlghagoNode& node1, const AlghagoNode& node2, double& rho, double& theta)
@@ -229,7 +236,8 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
     double _rho_hat;
     bool _isOnLine = false;
     double _occupancy;
-    occupancy = 1.0;
+    occupancy = 0.0;
+    _occupancy = 1.0;
 
     for(vector<AlghagoNode>::size_type i=0; i<robotNodes.size(); i++)
     {
@@ -238,6 +246,7 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
         {
             if(_check_on_line(robotNodes[i], rho, theta, R_NODE, _rho_hat))
             {
+                occupancy = 1.0;
                 return true;
             }
         }
@@ -290,9 +299,27 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
 
 void AlghagoAlgorithm::_choose_node()
 {
+    int robotIndex;
+    int userIndex;
+    double maxProb = 0.0;
     for(int i=0; i<(int)robotNodes.size(); i++)
     {
         for(int j=0; j<(int)robotNodes[i].pThreating.size(); j++)
-            ROS_INFO("%d node to %d: pThreating = %.2lf",i,j,robotNodes[i].pThreating[j]);
+        {
+            if(maxProb < robotNodes[i].pThreating[j])
+            {
+                maxProb = robotNodes[i].pThreating[j];
+                robotIndex = i;
+                userIndex = j;
+            }
+            ROS_INFO("%d node to %d: pThreating = %.5lf",i,j,robotNodes[i].pThreating[j]);
+        }
     }
+
+    ROS_INFO("My %d Node will attack %d Node", robotIndex, userIndex);
+    ROS_INFO("%.1lf, %.1lf -> %.1lf, %.1lf",
+             robotNodes[robotIndex].coordinate(0), robotNodes[robotIndex].coordinate(1),
+             userNodes[userIndex].coordinate(0), userNodes[userIndex].coordinate(1));
+    shootIndex = robotIndex;
+    targetIndex = userIndex;
 }

@@ -9,6 +9,8 @@ BadukpanExtractor::BadukpanExtractor(ros::NodeHandle& nh) : it_(nh), count_(0), 
     //image_transport::TransportHints hints("compressed", ros::TransportHints(), nh);
     camera_sub_ = it_.subscribe("/usb_cam/image_raw", 1,  &BadukpanExtractor::imageCallback, this);
     processed_pub_ = it_.advertise("/badukpan/image_raw", 1);
+    badukal_pub_ = nh.advertise<alghago_msgs::BadukalArray>("/badukpan/badukals", 1);
+    badukpan_fit_sub_ = nh.subscribe("/badukpan/fit", 1, &BadukpanExtractor::badukpanFitCallback, this);
 }
 
 void BadukpanExtractor::fitBadukpan(Mat& srcImg)
@@ -122,7 +124,7 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
     //medianBlur(grayImg, grayImg, 3);
 
     vector<Vec3f> circles;
-    HoughCircles( grayImg, circles,CV_HOUGH_GRADIENT, 2, 12, 50, 30, 10, 13);
+    HoughCircles( grayImg, circles,CV_HOUGH_GRADIENT, 2, 12, 40, 25, 10, 13);
 
 
     // clear badukal vector
@@ -146,15 +148,15 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
            }
        }
 
-       const int BLACK_THRESH = 130;
+       const int BLACK_THRESH = 200;
        const int WHITE_THRESH = 600;
 
        if(centerPixSum > WHITE_THRESH)
        {
            Badukal _al;
            _al.color = Badukal::WHITE;
-           _al.x = center.x;
-           _al.y = center.y;
+           _al.x = center.y;
+           _al.y = center.x;
 
            badukalPoints_[filterCount_].push_back(_al);
 
@@ -169,8 +171,8 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
        {
            Badukal _al;
            _al.color = Badukal::BLACK;
-           _al.x = center.x;
-           _al.y = center.y;
+           _al.x = center.y;
+           _al.y = center.x;
 
            badukalPoints_[filterCount_].push_back(_al);
            // circle center
@@ -184,14 +186,28 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
     filterCount_ ++;
     if(filterCount_ == FILTER_CNT)
     {
-        alghago_msgs::BadukalArray msg;
-        vector<Badukal> filtered_al;
-        vector<int> scores;
-        filtered_al = badukalPoints_[0];
-        scores.resize(filtered_al.size(),1);
-        for(int i=1; i<FILTER_CNT; i++)
+        filterCount_ = 0;
+        int _maxNum = 0;
+        int _maxIndex = 0;
+        for(int i=0; i<FILTER_CNT; i++)
         {
+            if(_maxNum < badukalPoints_[i].size())
+            {
+                _maxIndex = i;
+                _maxNum = badukalPoints_[i].size();
+            }
         }
+        alghago_msgs::BadukalArray msg;
+        msg.header.stamp = ros::Time::now();
+        for(int i=0; i<badukalPoints_[_maxIndex].size(); i++)
+        {
+            alghago_msgs::Badukal b;
+            b.x = badukalPoints_[_maxIndex][i].x;
+            b.y = badukalPoints_[_maxIndex][i].y;
+            b.color = badukalPoints_[_maxIndex][i].color;
+            msg.badukals.push_back(b);
+        }
+        badukal_pub_.publish(msg);
     }
 }
 
@@ -231,4 +247,10 @@ void BadukpanExtractor::imageCallback(const sensor_msgs::ImageConstPtr& msg)
         //cv_bridge::CvImage dstImage_bridge(header, sensor_msgs::image_encodings::MONO8, grayImg);
         processed_pub_.publish(dstImage_bridge.toImageMsg());
     }
+}
+
+void BadukpanExtractor::badukpanFitCallback(const std_msgs::BoolConstPtr msg)
+{
+    (void)msg;
+    isFirst_ = true;
 }
