@@ -54,6 +54,8 @@ class AlghagoAlgorithm
     const static double BOARD_WIDTH;
     const static double BOARD_HEIGHT;
 
+    bool indexAvailable_;
+
     int shootIndex;
     int targetIndex;
 
@@ -63,7 +65,7 @@ class AlghagoAlgorithm
     Vector2d boardVertics[4];
 
 public:
-    AlghagoAlgorithm() { _initialize(); }
+    AlghagoAlgorithm() : indexAvailable_(false) { _initialize(); }
 
     void updateNodes(vector<AlghagoNode> &updateRobotNodes,
                      vector<AlghagoNode> &updateUserNodes)
@@ -91,13 +93,14 @@ public:
         _update_variables();
     }
 
-    void compute()
+    bool compute()
     {
         _compute_threating();
         _compute_threated();
-        _choose_node();
+        indexAvailable_ = _choose_node();
+        return indexAvailable_;
     }
-    void write(Vector2d &shoot, Vector2d &target)
+    bool write(Vector2d &shoot, Vector2d &target)
     {
         shoot = robotNodes[shootIndex].coordinate;
         target = userNodes[targetIndex].coordinate;
@@ -109,7 +112,7 @@ private:
     void _update_variables();
     void _compute_threating();
     void _compute_threated();
-    void _choose_node();
+    bool _choose_node();
 
     bool _check_in_range(const AlghagoNode &node, const Matrix2d &range);
     bool _check_on_line(const AlghagoNode &node, double rho, double theta, double r, double & rho_hat);

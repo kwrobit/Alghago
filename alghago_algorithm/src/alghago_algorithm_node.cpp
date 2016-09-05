@@ -43,17 +43,19 @@ private:
         }
 
         AA_.updateNodes(robotNodes,userNodes);
-        AA_.compute();
-        Vector2d shootCoord;
-        Vector2d targetCoord;
-        AA_.write(shootCoord,targetCoord);
-        std_msgs::Float32MultiArray coordMsg;
-        coordMsg.data.push_back(shootCoord(0));
-        coordMsg.data.push_back(shootCoord(1));
-        coordMsg.data.push_back(targetCoord(0));
-        coordMsg.data.push_back(targetCoord(1));
+        if(AA_.compute())   // Checking whether target is available.
+        {
+            Vector2d shootCoord;
+            Vector2d targetCoord;
+            AA_.write(shootCoord,targetCoord);
+            std_msgs::Float32MultiArray coordMsg;
+            coordMsg.data.push_back(shootCoord(0));
+            coordMsg.data.push_back(shootCoord(1));
+            coordMsg.data.push_back(targetCoord(0));
+            coordMsg.data.push_back(targetCoord(1));
 
-        result_pub_.publish(coordMsg);
+            result_pub_.publish(coordMsg);
+        }
     }
 
 };
@@ -67,21 +69,6 @@ int main(int argc, char **argv)
     AlghagoAlgorithmROS aa;
 
     ros::spin();
-
-    /*
-    AlghagoAlgorithm AA;
-
-    vector<Vector2d> robotSampleNodes;
-    vector<Vector2d> userSampleNodes;
-
-    robotSampleNodes.push_back(Vector2d(100, 100));
-    robotSampleNodes.push_back(Vector2d(100, 200));
-
-    userSampleNodes.push_back(Vector2d(110, 150));
-
-    AA.updateNodes(robotSampleNodes,userSampleNodes);
-    AA.compute();
-*/
 
     return 0;
 }

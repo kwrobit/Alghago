@@ -2,8 +2,8 @@
 
 
 const double AlghagoAlgorithm::R_NODE = 15.;
-const double AlghagoAlgorithm::BOARD_HEIGHT = 450.0;
-const double AlghagoAlgorithm::BOARD_WIDTH = 420.0;
+const double AlghagoAlgorithm::BOARD_HEIGHT = 424.0;
+const double AlghagoAlgorithm::BOARD_WIDTH = 396.0;
 
 
 void AlghagoAlgorithm::_initialize()
@@ -13,6 +13,7 @@ void AlghagoAlgorithm::_initialize()
     boardVertics[LEFT_BOT] =    Vector2d(0,             BOARD_HEIGHT);
     boardVertics[RIGHT_BOT] =   Vector2d(BOARD_WIDTH,   BOARD_HEIGHT);
 }
+
 void AlghagoAlgorithm::_update_variables()
 {
     for(vector<AlghagoNode>::iterator robotNodeItr = robotNodes.begin();
@@ -50,6 +51,7 @@ void AlghagoAlgorithm::_compute_threating()
             _local_search_in_rect(robotNodes[i].rectDisturbance, rho, theta, i, j, occupancy);
             dist = _get_distance(robotNodes[i], userNodes[j]);
             robotNodes[i].pThreating[j] = (1.0 - occupancy) / dist;
+
         }
     }
 }
@@ -258,7 +260,9 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
         {
             if(_check_on_line(userNodes[i], rho, theta, R_NODE, _rho_hat))
             {
+
                 _occupancy = fabs(rho-_rho_hat) / (2 * R_NODE);
+
                 if(_occupancy > occupancy) occupancy = _occupancy;
 
                 _isOnLine = true;
@@ -297,7 +301,7 @@ bool AlghagoAlgorithm::_local_search_in_rect(const Matrix2d &range, double rho, 
     return _isOnLine;
 }
 
-void AlghagoAlgorithm::_choose_node()
+bool AlghagoAlgorithm::_choose_node()
 {
     int robotIndex;
     int userIndex;
@@ -316,10 +320,18 @@ void AlghagoAlgorithm::_choose_node()
         }
     }
 
-    ROS_INFO("My %d Node will attack %d Node", robotIndex, userIndex);
-    ROS_INFO("%.1lf, %.1lf -> %.1lf, %.1lf",
-             robotNodes[robotIndex].coordinate(0), robotNodes[robotIndex].coordinate(1),
-             userNodes[userIndex].coordinate(0), userNodes[userIndex].coordinate(1));
-    shootIndex = robotIndex;
-    targetIndex = userIndex;
+
+
+    if ( robotNodes.size() != 0 && userNodes.size() != 0 )    // size available
+    {
+        ROS_INFO("My %d Node will attack %d Node", robotIndex, userIndex);
+        ROS_INFO("%.1lf, %.1lf -> %.1lf, %.1lf",
+                 robotNodes[robotIndex].coordinate(0), robotNodes[robotIndex].coordinate(1),
+                 userNodes[userIndex].coordinate(0), userNodes[userIndex].coordinate(1));
+        shootIndex = robotIndex;
+        targetIndex = userIndex;
+        return true;
+    }
+
+    return false;
 }

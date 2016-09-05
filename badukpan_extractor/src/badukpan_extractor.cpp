@@ -105,16 +105,16 @@ void BadukpanExtractor::fitBadukpan(Mat& srcImg)
 
     cv::Point2f dst_vertices[3];
     dst_vertices[0] = cv::Point2f(0,0);
-    dst_vertices[1] = cv::Point2f(420,0);
-    dst_vertices[2] = cv::Point2f(0,450);
-    dst_vertices[3] = cv::Point2f(420,450);
+    dst_vertices[1] = cv::Point2f(396,0);
+    dst_vertices[2] = cv::Point2f(0,424);
+    dst_vertices[3] = cv::Point2f(396,424);
 
     warpPerspectiveMatrix_ = getPerspectiveTransform(src_vertices,dst_vertices);
 }
 
 void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
 {
-    cv::Size size(420, 450);
+    cv::Size size(396, 424);
     warpPerspective(srcImg, badukpanImg, warpPerspectiveMatrix_, size, INTER_CUBIC, BORDER_CONSTANT);
     Mat grayImg;
 
@@ -134,7 +134,6 @@ void BadukpanExtractor::scanBadukal(Mat& srcImg, Mat& badukpanImg)
     {
 
        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-
 
        int radius = cvRound(circles[i][2]);
 
