@@ -110,6 +110,11 @@ void MainWindow::on_button_shoot_done_clicked()
     qnode.state_transition("shoot_done");
 }
 
+void MainWindow::on_button_calibrate_video_clicked()
+{
+    qnode.fit_video();
+}
+
 void MainWindow::on_button_user_done_clicked()
 {
     qnode.state_transition("user_done");

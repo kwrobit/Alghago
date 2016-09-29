@@ -52,6 +52,7 @@ public Q_SLOTS:
     void on_button_think_done_clicked();
     void on_button_user_done_clicked();
     void on_button_shoot_done_clicked();
+    void on_button_calibrate_video_clicked();
 	void on_checkbox_use_environment_stateChanged(int state);
 
     /******************************************

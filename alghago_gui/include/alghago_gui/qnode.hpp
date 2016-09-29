@@ -18,6 +18,7 @@
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Empty.h>
 #include <smach_msgs/SmachContainerStatus.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -46,15 +47,6 @@ public:
     bool init(const std::string &master_url, const std::string &host_url);
     void node_init();
 	void run();
-
-
-    void state_transition(const char *c_str)
-    {
-        std::string str(c_str);
-        std_msgs::String msg;
-        msg.data = str;
-        smach_publisher.publish(msg);
-    }
 
 	/*********************
 	** Logging
@@ -91,8 +83,13 @@ private:
     ros::NodeHandle *nh;
     image_transport::ImageTransport *it;
 	ros::Publisher chatter_publisher;
+    ros::Publisher video_fit_publisher;
+
+
     ros::Subscriber smach_subscriber;
     ros::Publisher smach_publisher;
+
+
     QStringListModel logging_model;
 
     std::string smach_state;
@@ -103,6 +100,23 @@ private:
 private:
     void state_callback(const smach_msgs::SmachContainerStatusConstPtr& msg);
     void badukpan_image_callback(const sensor_msgs::ImageConstPtr& msg);
+
+
+
+public: // User defined
+    void state_transition(const char *c_str)
+    {
+        std::string str(c_str);
+        std_msgs::String msg;
+        msg.data = str;
+        smach_publisher.publish(msg);
+    }
+    void fit_video()
+    {
+        std_msgs::Empty msg;
+        video_fit_publisher.publish(msg);
+    }
+
 };
 
 }  // namespace alghago_gui

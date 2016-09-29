@@ -3,6 +3,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Empty.h>
+
 #include <geometry_msgs/PoseArray.h>
 #include "alghago_msgs/BadukalArray.h"
 
@@ -55,7 +57,7 @@ public:
 
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
-    void badukpanFitCallback(const std_msgs::BoolConstPtr msg);
+    void badukpanFitCallback(const std_msgs::EmptyConstPtr msg);
     void fitBadukpan(Mat &srcImg);
     void scanBadukal(Mat &srcImg, Mat &badukpanImg);
 

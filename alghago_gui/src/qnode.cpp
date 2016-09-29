@@ -77,6 +77,7 @@ void QNode::node_init()
         it = new image_transport::ImageTransport(*nh);
         smach_publisher = nh->advertise<std_msgs::String>("alghago_sm/transition",5);
     chatter_publisher = nh->advertise<std_msgs::String>("chatter", 1000);
+    video_fit_publisher = nh->advertise<std_msgs::Empty>("/badukpan/fit", 1);
     badukpan_subscriber = it->subscribe("/badukpan/image_raw", 1,
                                        &QNode::badukpan_image_callback, this);
     smach_subscriber = nh->subscribe("/alghago_sm/smach/container_status", 1,

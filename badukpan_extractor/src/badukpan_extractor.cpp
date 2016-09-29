@@ -248,7 +248,7 @@ void BadukpanExtractor::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     }
 }
 
-void BadukpanExtractor::badukpanFitCallback(const std_msgs::BoolConstPtr msg)
+void BadukpanExtractor::badukpanFitCallback(const std_msgs::EmptyConstPtr msg)
 {
     (void)msg;
     isFirst_ = true;

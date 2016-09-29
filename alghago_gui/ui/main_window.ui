@@ -96,6 +96,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="button_calibrate_video">
+           <property name="text">
+            <string>Calibrate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_video">
            <property name="minimumSize">
             <size>

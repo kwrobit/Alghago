@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find usb_cam)/launch/alghago_cam.launch" />
+  <node name="alghago_algorithm" pkg="alghago_algorithm" type="alghago_algorithm_node" respawn="false" output="log" />
+  <node name="alghago_statemachine" pkg="alghago_statemachine" type="alghago_statemachine.py" respawn="false" output="screen" />
+  <node name="badukpan_extractor" pkg="badukpan_extractor" type="badukpan" respawn="false" output="screen" />
+  <node name="alghago_gui" pkg="alghago_gui" type="alghago_gui" respawn="false" output="log" />
+</launch>

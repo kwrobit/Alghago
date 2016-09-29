@@ -1,8 +1,12 @@
 
 #include <ros/ros.h>
 #include <std_msgs/Float32MultiArray.h>
+
+// state machine
 #include <std_msgs/String.h>
 #include <smach_msgs/SmachContainerStatus.h>
+// -- state machine
+
 #include "alghago_msgs/BadukalArray.h"
 
 #include "alghago_algorithm.h"
@@ -18,11 +22,13 @@ class AlghagoAlgorithmROS
     AlghagoAlgorithm AA_;
 
 
+    // state machine
     ros::Subscriber smach_sub_;
     ros::Publisher smach_pub_;
 
     std::string smach_state_;
     std::string smach_state_old_;
+    // -- state machine
 
     bool algorithm_calc_start_;
 
@@ -32,12 +38,16 @@ public:
         badukal_sub_ = nh_.subscribe("/badukpan/badukals",1, &AlghagoAlgorithmROS::badukalCallback, this);
         result_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/alghago_ai/result", 1);
 
+        // state machine
         smach_pub_ = nh_.advertise<std_msgs::String>("alghago_sm/transition",5);
         smach_sub_ = nh_.subscribe("/alghago_sm/smach/container_status", 1,
                                         &AlghagoAlgorithmROS::stateCallback, this);
+        // -- state machine
     }
 
 private:
+
+    // state machine
     void stateTigger()
     {
         if(smach_state_ != smach_state_old_)
@@ -57,6 +67,7 @@ private:
         msg.data = str;
         smach_pub_.publish(msg);
     }
+    // -- state machine
 
     void badukalCallback(const alghago_msgs::BadukalArrayConstPtr msg)
     {
@@ -99,11 +110,13 @@ private:
     }
 
 
+    // state machine
     void stateCallback(const smach_msgs::SmachContainerStatusConstPtr &msg)
     {
         smach_state_ = msg->active_states[0];
         stateTigger();
     }
+    // -- state machine
 
 };
 
