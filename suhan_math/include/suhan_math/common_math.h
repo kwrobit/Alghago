@@ -9,12 +9,12 @@
 using namespace Eigen;
 
 
-
 namespace SuhanMath
 {
 
 const double EPSILON = 0.00000001;
 const double RAD2DEG = 57.295779515;
+const double DEG2RAD = 0.017453293;
 
 #define MAX2d(X,Y) ((X>Y)?X:Y)
 #define MIN2d(X,Y) ((X<Y)?X:Y)

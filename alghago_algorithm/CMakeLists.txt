@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   alghago_msgs
+  suhan_math
 )
 
 catkin_package(

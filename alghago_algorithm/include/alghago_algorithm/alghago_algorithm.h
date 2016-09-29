@@ -1,8 +1,8 @@
 #include <vector>
 #include <eigen3/Eigen/Dense>
 #include <ros/ros.h>
+#include <suhan_math/common_math.h>
 
-#include "common_math.h"
 
 using namespace std;
 using namespace Eigen;
